@@ -1,0 +1,5 @@
+---
+
+dbservers:
+  hosts:
+    db.example.com:

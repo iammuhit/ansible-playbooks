@@ -1,0 +1,5 @@
+---
+
+mailservers:
+  hosts:
+    mail.example.com:
