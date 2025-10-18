@@ -51,3 +51,53 @@
       ansible.builtin.service:
         name: nginx
         state: reloaded
+
+- name: Database Server Provisioning
+  hosts: dbservers
+  become: true
+
+  tasks:
+    - name: Install MariaDB Server
+      ansible.builtin.dnf:
+        name: mariadb-server
+        state: present
+        update_cache: true
+
+    - name: Install PyMySQL for Python MySQL Modules
+      ansible.builtin.pip:
+        name: PyMySQL
+        executable: pip3
+
+    - name: Start and Enable MariaDB Service
+      ansible.builtin.service:
+        name: mariadb
+        state: started
+        enabled: true
+
+    - name: Configure Root Password
+      community.mysql.mysql_user:
+        check_implicit_admin: true
+        update_password: always
+        name: '{{ mariadb_root_user }}'
+        password: '{{ mariadb_root_password }}'
+
+        login_user: '{{ mariadb_root_user }}'
+        login_password: '{{ mariadb_root_password }}'
+        login_unix_socket: /var/lib/mysql/mysql.sock
+        state: present
+
+    - name: Create Application Database
+      community.mysql.mysql_db:
+        name: '{{ mariadb_database | default("app_database") }}'
+        login_user: '{{ mariadb_root_user }}'
+        login_password: '{{ mariadb_root_password }}'
+        state: present
+
+    - name: Create Application Database User
+      community.mysql.mysql_user:
+        name: '{{ mariadb_user }}'
+        password: '{{ mariadb_password }}'
+        priv: '{{ mariadb_database }}.*:ALL'
+        login_user: '{{ mariadb_root_user }}'
+        login_password: '{{ mariadb_root_password }}'
+        state: present
