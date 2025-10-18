@@ -1,1 +1,17 @@
 ---
+
+- name: Webserver Provisioning
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Install Nginx Web Server
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Start and Enable Nginx Service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
