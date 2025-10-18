@@ -9,6 +9,7 @@
       ansible.builtin.apt:
         name: nginx
         state: present
+        update_cache: true
 
     - name: Start and Enable Nginx Service
       ansible.builtin.service:
@@ -23,6 +24,27 @@
         mode: '0644'
       notify:
         - Reload Nginx
+
+    - name: Install PHP and Required Extensions
+      ansible.builtin.apt:
+        name:
+          - php8.1-fpm
+          - php-mysql
+          - php-curl
+          - php-gd
+          - php-mbstring
+          - php-xml
+          - php-zip
+          - php-cli
+        state: present
+      notify:
+        - Reload Nginx
+
+    - name: Start and Enable PHP-FPM Service
+      ansible.builtin.service:
+        name: php8.1-fpm
+        state: started
+        enabled: true
 
   handlers:
     - name: Reload Nginx
